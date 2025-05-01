@@ -1,15 +1,19 @@
 #!/bin/bash
-
-# Exit script on error
 set -e
 
+# Wait for PostgreSQL to be ready
+until pg_isready -h "$POSTGRES_HOST" -p "$POSTGRES_PORT" -U "$POSTGRES_USER"; do
+  echo "Waiting for PostgreSQL at $POSTGRES_HOST:$POSTGRES_PORT..."
+  sleep 2
+done
+
+echo "PostgreSQL is ready."
+
 echo "Running migrations..."
-python manage.py migrate
+python manage.py migrate --noinput
 
 echo "Collecting static files..."
 python manage.py collectstatic --noinput
 
-# Start the Uvicorn server
-echo "Starting Uvicorn server..."
-
-exec gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 3 --reload
+echo "Starting: $@"
+exec "$@"

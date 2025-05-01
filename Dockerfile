@@ -1,5 +1,5 @@
 # Base Image
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -7,6 +7,14 @@ ENV PYTHONUNBUFFERED 1
 
 # Set work directory
 WORKDIR /app
+
+
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libpq-dev \
+    postgresql-client \
+    --no-install-recommends && rm -rf /var/lib/apt/lists/*
+
 
 # Install dependencies
 COPY requirements.txt .
@@ -24,4 +32,4 @@ EXPOSE 8000
 
 # Use the entrypoint script
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["python3" "manage.py","runserver","0.0.0.0:8000"]
+CMD ["python3", "manage.py","runserver","0.0.0.0:8000"]
